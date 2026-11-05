@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PiQ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Italiana&family=Playfair+Display:wght@400;500&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=IM+Fell+English+SC&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Photo monograph: warm black page, bone type, hairline rules; one bold move = oversized serif headlines. Plates numbered like a photobook. */
+  --bg:#0d0d0c; --raise:#151513; --line:#2c2b28; --ink:#eeebe4; --muted:#8f8b82; --soft:#c9c5bb;
+  --good:#9fc5a4; --bad:#e3907f; --focus:#d8402b;
+  --display:"Instrument Serif","Iowan Old Style",Georgia,serif;
+  --body:"Geist",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"Geist Mono",ui-monospace,Menlo,monospace;
+  --classic:"Cormorant Garamond","Iowan Old Style",Georgia,serif; --sc:"IM Fell English SC","Cormorant Garamond",Georgia,serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-weight:300;font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased}
+::selection{background:var(--ink);color:var(--bg)}
+[hidden]{display:none!important}
+.wrap{max-width:820px;margin:0 auto;padding:0 24px 160px;display:flex;flex-direction:column}
+header.hero{padding:12vh 0 8vh;display:flex;flex-direction:column;gap:26px;border-bottom:1px solid var(--line)}
+.cap{font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--display);font-weight:400;font-size:clamp(52px,10.5vw,112px);line-height:.92;letter-spacing:-.02em;margin:0;text-wrap:balance}
+h1 em,h2 em{font-style:italic;color:var(--soft)}
+.lede{color:var(--soft);max-width:56ch;margin:0;font-size:19px}
+.fine{color:var(--muted);max-width:60ch;margin:0;font-size:14px}
+.logo{font-family:"Playfair Display",var(--display);font-weight:400;font-size:34px;line-height:1;letter-spacing:-.005em;color:var(--ink);display:inline-block}
+.logo .q{position:relative;display:inline-block}
+.logo .q b{position:absolute;left:58%;top:52%;width:.13em;height:.13em;border-radius:50%;background:var(--focus);transform:translate(-50%,-50%)}
+.topline .logo{font-size:44px}
+.sig{font-family:var(--display);font-style:italic;font-size:22px;color:var(--muted)}
+@media (prefers-reduced-motion:no-preference){
+  .hero > *{animation:rise .9s cubic-bezier(.2,.7,.2,1) both}
+  .hero > *:nth-child(2){animation-delay:.08s} .hero > *:nth-child(3){animation-delay:.2s} .hero > *:nth-child(4){animation-delay:.28s} .hero > *:nth-child(5){animation-delay:.34s}
+  @keyframes rise{from{opacity:.001;transform:translateY(14px)}to{opacity:1;transform:none}}
+}
+.banner{border-left:1px solid var(--soft);padding:4px 0 4px 16px;font-size:15px;color:var(--soft);max-width:62ch}
+.done{border-left-color:var(--good)}
+section.roll{display:grid;grid-template-columns:180px 1fr;gap:40px;padding:72px 0;border-bottom:1px solid var(--line)}
+@media (max-width:680px){section.roll{grid-template-columns:1fr;gap:28px;padding:56px 0}}
+.rollhead{display:flex;flex-direction:column;gap:10px}
+.no{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.1em}
+h2{font-family:var(--display);font-weight:400;font-size:38px;line-height:1;margin:0;text-wrap:balance}
+.rollhead p{margin:0;color:var(--muted);font-size:14.5px}
+.body{display:flex;flex-direction:column;gap:34px;min-width:0}
+.field{display:flex;flex-direction:column;gap:8px}
+label,.legend{font-weight:400;font-size:15px;color:var(--soft)}
+.hint{color:var(--muted);font-size:13.5px;display:block;margin-top:2px}
+input[type=text],input[type=email],input[type=url],select,textarea{
+  width:100%;background:transparent;color:var(--ink);border:0;border-bottom:1px solid var(--line);border-radius:0;padding:8px 0 10px;font:inherit;font-weight:400;font-size:18px;transition:border-color .2s}
+input::placeholder,textarea::placeholder{color:#55524c}
+input:hover,textarea:hover,select:hover{border-bottom-color:#4a4843}
+input:focus,textarea:focus,select:focus{outline:none;border-bottom-color:var(--ink)}
+select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(-45deg,transparent 50%,var(--muted) 50%);background-position:calc(100% - 10px) 55%,calc(100% - 5px) 55%;background-size:5px 5px;background-repeat:no-repeat}
+select option{background:var(--raise);color:var(--ink)}
+textarea{min-height:76px;resize:vertical;line-height:1.5}
+button:focus-visible,a:focus-visible,.chip input:focus-visible+span,label.btn:focus-within{outline:1px solid var(--ink);outline-offset:3px}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{position:relative}
+.chip input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.chip span{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:7px 16px;font-size:14.5px;font-weight:400;color:var(--soft);cursor:pointer;user-select:none;transition:background .18s,color .18s,border-color .18s}
+.chip:hover span{border-color:#55524c}
+.chip input:checked+span{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.scale{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.scale .chip span{min-width:44px;text-align:center;font-family:var(--mono)}
+.scale .hint{margin:0 4px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+@media (max-width:560px){.two{grid-template-columns:1fr}}
+.drop{border:1px solid var(--line);padding:44px 20px;text-align:center;display:flex;flex-direction:column;gap:14px;align-items:center;background:var(--raise);transition:border-color .2s}
+.drop.over{border-color:var(--ink)}
+.drop .big{font-family:var(--display);font-size:28px;line-height:1.1}
+.btn{background:var(--ink);color:var(--bg);border:1px solid var(--ink);border-radius:999px;padding:11px 22px;font:inherit;font-size:14.5px;font-weight:500;cursor:pointer;transition:opacity .2s;white-space:nowrap}
+.btn:hover{opacity:.88}
+.btn:disabled{opacity:.4;cursor:default}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn.ghost:hover{border-color:var(--muted);opacity:1}
+.link{background:none;border:0;color:var(--soft);font:inherit;font-size:14px;cursor:pointer;padding:0;border-bottom:1px solid var(--line)}
+.link:hover{color:var(--ink);border-bottom-color:var(--muted)}
+.sheet{display:flex;flex-direction:column;gap:44px}
+.sheet:empty{display:none}
+.frame{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:28px;align-items:start}
+@media (max-width:620px){.frame{grid-template-columns:1fr}}
+.thumb{display:flex;flex-direction:column;gap:10px}
+.thumb img{width:100%;height:auto;max-height:420px;object-fit:contain;background:#000;display:block}
+.capline{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+.fno{font-family:var(--display);font-style:italic;font-size:17px;color:var(--soft)}
+.status{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.status.ok{color:var(--good)} .status.err{color:var(--bad)}
+.frame .fields{display:flex;flex-direction:column;gap:20px}
+.bar{position:fixed;left:0;right:0;bottom:0;background:rgba(13,13,12,.88);border-top:1px solid var(--line);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:5}
+.bar .in{max-width:820px;margin:0 auto;padding:14px 24px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.state{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.copyout{display:none;flex-direction:column;gap:8px;padding-top:48px}
+.copyout.show{display:flex}
+
+/* ---------- Studio ---------- */
+.studio{max-width:1180px;margin:0 auto;padding:0 24px 220px}
+.studio header{padding:9vh 0 5vh;display:flex;flex-direction:column;gap:18px;border-bottom:1px solid var(--line)}
+.studio h1{font-size:clamp(44px,8vw,92px)}
+.topline{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap}
+.grid{display:grid;grid-template-columns:340px minmax(0,1fr);gap:56px;padding-top:48px;align-items:start}
+@media (max-width:900px){.grid{grid-template-columns:1fr;gap:40px}}
+aside.side{display:flex;flex-direction:column;gap:44px;position:sticky;top:24px}
+@media (max-width:900px){aside.side{position:static}}
+.block{display:flex;flex-direction:column;gap:14px}
+.block h3{font-family:var(--mono);font-weight:400;font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin:0;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.note{font-family:var(--display);font-size:22px;line-height:1.3;color:var(--ink);margin:0;text-wrap:pretty}
+.note-sig{font-size:13px;color:var(--muted)}
+.tasks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.task{display:grid;grid-template-columns:22px 1fr;gap:12px;align-items:start}
+.task input{appearance:none;width:18px;height:18px;border:1px solid var(--muted);border-radius:50%;margin:4px 0 0;cursor:pointer;display:grid;place-items:center}
+.task input:checked{background:var(--ink);border-color:var(--ink)}
+.task input:checked::after{content:"";width:6px;height:6px;border-radius:50%;background:var(--bg)}
+.task .t{font-size:15.5px;color:var(--ink)}
+.task.is-done .t{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line)}
+.task .d{font-size:13.5px;color:var(--muted);display:block}
+.due{display:block;margin-top:2px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--soft)}
+.dl{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.dl li{display:grid;grid-template-columns:64px 1fr;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.dl .date{font-family:var(--mono);font-size:12px;color:var(--soft);font-variant-numeric:tabular-nums;padding-top:2px}
+.dl .name{font-size:15px}
+.dl .why{font-size:13px;color:var(--muted);display:block}
+.empty{font-size:14px;color:var(--muted);margin:0}
+.plates{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.plates button{padding:0;border:0;background:#000;cursor:pointer;aspect-ratio:1;overflow:hidden;position:relative}
+.plates img{width:100%;height:100%;object-fit:cover;display:block;opacity:.92;transition:opacity .2s,transform .4s}
+.plates button:hover img{opacity:1;transform:scale(1.03)}
+.plates button span{position:absolute;left:6px;bottom:4px;font-family:var(--display);font-style:italic;font-size:13px;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.7)}
+.memory{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.memory li{display:flex;justify-content:space-between;gap:10px;font-size:14px;color:var(--soft)}
+.memory button{background:none;border:0;color:var(--muted);cursor:pointer;font-size:13px;padding:0}
+.memory button:hover{color:var(--ink)}
+
+.convo{display:flex;flex-direction:column;gap:30px;min-width:0}
+.starter{display:flex;flex-direction:column;gap:18px;padding:8px 0 4px}
+.starter p{margin:0;color:var(--soft);max-width:56ch}
+.prompts{display:flex;flex-wrap:wrap;gap:8px}
+.prompts button{background:transparent;border:1px solid var(--line);border-radius:999px;color:var(--soft);font:inherit;font-size:14px;padding:8px 15px;cursor:pointer;transition:border-color .18s,color .18s}
+.prompts button:hover{border-color:var(--muted);color:var(--ink)}
+.msg{display:flex;flex-direction:column;gap:10px;max-width:68ch}
+.msg .who{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.msg.me{align-self:flex-end;align-items:flex-end;max-width:56ch}
+.msg.me .bubble{background:var(--raise);border:1px solid var(--line);padding:12px 16px;border-radius:14px 14px 4px 14px;white-space:pre-wrap;font-weight:400}
+.msg.ai .bubble{font-size:17px;line-height:1.65;color:var(--ink)}
+.msg.ai .bubble p{margin:0 0 .8em} .msg.ai .bubble p:last-child{margin:0}
+.msg.ai .bubble ul,.msg.ai .bubble ol{margin:0 0 .8em;padding-left:1.2em}
+.msg.ai .bubble li{margin:.2em 0}
+.msg.ai .bubble strong{font-weight:500;color:#fff}
+.msg.ai .bubble h4{font-family:var(--display);font-weight:400;font-size:22px;margin:.6em 0 .3em}
+.msg .imgs{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.msg .imgs img{height:120px;width:auto;max-width:200px;object-fit:cover;display:block;background:#000}
+.thinking{color:var(--muted);font-family:var(--display);font-style:italic;font-size:19px}
+.err{color:var(--bad);font-size:14px}
+.composer{position:fixed;left:0;right:0;bottom:0;z-index:5;background:linear-gradient(to top,var(--bg) 70%,rgba(13,13,12,0));padding-top:30px}
+.composer .in{max-width:1180px;margin:0 auto;padding:0 24px 18px;display:grid;grid-template-columns:340px minmax(0,1fr);gap:56px}
+@media (max-width:900px){.composer .in{grid-template-columns:1fr}.composer .spacer{display:none}}
+.box{border:1px solid var(--line);background:var(--raise);border-radius:16px;padding:12px 12px 10px 16px;display:flex;flex-direction:column;gap:8px;transition:border-color .2s}
+.box:focus-within{border-color:#55524c}
+.box textarea{border:0;min-height:28px;max-height:200px;padding:4px 0;font-size:17px;resize:none}
+.box textarea:focus{border:0}
+.box .row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.attached{display:flex;gap:6px;flex-wrap:wrap}
+.attached:empty{display:none}
+.attached div{position:relative}
+.attached img{height:56px;width:56px;object-fit:cover;display:block;border-radius:4px}
+.attached button{position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;border:0;background:var(--ink);color:var(--bg);font-size:12px;line-height:20px;cursor:pointer;padding:0}
+.tiny{font-size:12.5px;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* ---- classic, slightly modern form treatment ---- */
+.no{font-family:var(--sc);font-size:20px;letter-spacing:.08em;color:var(--focus)}
+label,.legend{font-family:var(--classic);font-size:21px;font-weight:500;line-height:1.3;color:var(--ink)}
+.hint{font-family:var(--body);font-size:13.5px;font-weight:300;color:var(--muted);margin-top:4px}
+input[type=text],input[type=email],input[type=url],select{font-family:var(--body);font-size:17px;border-bottom:1px solid #3a3934;padding:10px 0 9px}
+textarea{font-family:var(--body);font-size:17px;border:1px solid #3a3934;border-radius:2px;background:rgba(255,255,255,.015);padding:12px 14px;min-height:96px}
+textarea:focus{border-color:var(--soft)}
+.box textarea{border:0;background:transparent;padding:4px 0;min-height:28px}
+.chip span{border-radius:2px;padding:8px 14px 8px 34px;position:relative;font-size:14.5px;letter-spacing:.01em;border-color:#3a3934}
+.chip span::before{content:"";position:absolute;left:12px;top:50%;width:11px;height:11px;border:1px solid var(--muted);transform:translateY(-50%);transition:background .18s,border-color .18s}
+.chip input[type=radio]+span::before{border-radius:50%}
+.chip input:checked+span{background:transparent;color:var(--ink);border-color:var(--soft)}
+.chip input:checked+span::before{background:var(--focus);border-color:var(--focus)}
+.scale .chip span{padding:8px 14px 8px 32px;min-width:0}
+.btn{border-radius:2px;font-family:var(--sc);font-size:15px;letter-spacing:.14em;padding:11px 22px 10px}
+.drop{border:1px solid #3a3934;outline:1px solid #3a3934;outline-offset:5px;margin:6px;background:transparent}
+.drop .big{font-family:var(--classic);font-style:italic;font-size:30px}
+.rollhead p{font-family:var(--classic);font-style:italic;font-size:17px;color:var(--soft)}
+
+.login{min-height:100vh;display:grid;place-items:center;padding:24px}
+.login-in{max-width:420px;width:100%;display:flex;flex-direction:column;gap:22px}
+.logo.big{font-size:84px}
+.err{color:var(--bad);font-size:14px;min-height:1em;margin:0}
+</style>
+</head>
+<body>
+
+<!-- ================= ONBOARDING ================= -->
+<div id="login" class="login" hidden>
+  <div class="login-in">
+    <span class="logo big" role="img" aria-label="PiQ"><span aria-hidden="true">Pi<span class="q">Q<b></b></span></span></span>
+    <p class="lede">Your photo studio. Enter your access code to continue.</p>
+    <div class="field"><label for="code">Access code</label><input type="text" id="code" autocomplete="off" autocapitalize="off" spellcheck="false"></div>
+    <button class="btn" type="button" id="loginBtn">Enter</button>
+    <p class="err" id="loginErr" role="alert"></p>
+    <p class="fine">PiQ is an AI photography mentor, not a person. It&rsquo;s a private family tool; your family can see what you share here.</p>
+  </div>
+</div>
+
+<div id="onboard" hidden>
+<div class="wrap">
+  <header class="hero">
+    <div class="topline" style="align-items:center"><span class="logo" role="img" aria-label="PiQ"><span aria-hidden="true">Pi<span class="q">Q<b></b></span></span></span><span class="cap">For Oliver &middot; 2026&ndash;27</span></div>
+    <h1>Where should your photographs go <em>next?</em></h1>
+    <p class="lede">You've already won at the state fair. Next comes a short list of competitions and exhibitions that fit your work and land in time for college applications. Before PiQ suggests anything, it wants to understand how you see. Your answers and your strongest images decide what makes the list. Take twenty minutes, and be honest. Everything saves as you go.</p>
+    <p class="fine">When you finish, this page becomes your studio with PiQ: a place to workshop photos, write captions, and keep track of deadlines. PiQ is an AI, not a person. What you share here is visible to your family.</p>
+    <div id="ownerNote" class="banner" hidden>Parent view. You can read everything; only Oliver can edit. <button class="link" type="button" id="ownerStudio">Open the studio</button></div>
+    <div id="noSave" class="banner" hidden>PiQ can't be reached right now, so your answers won't save. Check your connection and reload, or use <strong>Copy answers</strong> at the bottom to keep them.</div>
+  </header>
+
+  <section class="roll" aria-labelledby="s1">
+    <div class="rollhead"><span class="no">I.</span><h2 id="s1">About you</h2></div>
+    <div class="body">
+      <div class="two">
+        <div class="field"><label for="f_name">Name</label><input type="text" id="f_name" data-k="name" autocomplete="name"></div>
+        <div class="field"><label for="f_email">Email you actually check</label><input type="email" id="f_email" data-k="email" autocomplete="email"></div>
+      </div>
+      <div class="field"><label for="f_since">How did you get into photography?<span class="hint">When, and what pulled you in</span></label><textarea id="f_since" data-k="origin"></textarea></div>
+      <div class="field"><label for="f_gear">What do you shoot with?<span class="hint">Phone, camera body, lenses</span></label><input type="text" id="f_gear" data-k="gear"></div>
+      <div class="field"><label for="f_edit">How do you edit?<span class="hint">Lightroom, Snapseed, a phone app, or not at all</span></label><input type="text" id="f_edit" data-k="editing"></div>
+      <div class="field"><label for="f_study">What are you thinking about studying, and why?<span class="hint">Optional. It helps us place photography inside the larger story of your application.</span></label><input type="text" id="f_study" data-k="study"></div>
+    </div>
+  </section>
+
+  <section class="roll" aria-labelledby="s2">
+    <div class="rollhead"><span class="no">II.</span><h2 id="s2">How you <em>see</em></h2><p>No wrong answers. A sentence or two each is plenty; more is welcome.</p></div>
+    <div class="body">
+      <div class="field"><label for="f_why">Why do you take pictures?</label><textarea id="f_why" data-k="whyShoot"></textarea></div>
+      <div class="field"><label for="f_notice">What do you notice that other people walk past?</label><textarea id="f_notice" data-k="notice"></textarea></div>
+      <div class="field"><label for="f_feel">When someone looks at your best photo, what do you want them to feel?</label><textarea id="f_feel" data-k="feel"></textarea></div>
+      <div class="field"><label for="f_place">A place that matters to you, where you shoot or wish you could</label><input type="text" id="f_place" data-k="place"></div>
+      <div class="field"><label for="f_away">The photo that got away<span class="hint">A moment you saw but didn't capture. What was it?</span></label><textarea id="f_away" data-k="gotAway"></textarea></div>
+      <div class="field"><label for="f_care">What do you care about outside of photography?<span class="hint">Music, sports, a cause, a subject you can't stop reading about</span></label><textarea id="f_care" data-k="cares"></textarea></div>
+    </div>
+  </section>
+
+  <section class="roll" aria-labelledby="s3">
+    <div class="rollhead"><span class="no">III.</span><h2 id="s3">Your strongest work</h2><p>Five to ten images, including the fair winner. PiQ will look at the photographs themselves. Full-resolution originals aren&rsquo;t needed yet.</p></div>
+    <div class="body">
+      <div class="drop" id="drop">
+        <div class="big">Drop images here</div><div class="hint" style="margin:0">or</div>
+        <label class="btn" for="fileIn" style="cursor:pointer">Choose from your library</label>
+        <input type="file" id="fileIn" accept="image/*" multiple hidden>
+        <div class="hint" id="countHint">0 of 10 added</div>
+      </div>
+      <div id="noUpload" class="banner" hidden>Uploading isn&rsquo;t available for you here. Put your favorites in a shared Google Drive folder and paste the link below.</div>
+      <div class="sheet" id="sheet"></div>
+      <div class="field"><label for="f_link">More of your work<span class="hint">Optional: Instagram, a portfolio site, or a shared Google Drive folder</span></label><input type="url" id="f_link" data-k="link" placeholder="https://"></div>
+      <div class="two">
+        <div class="field"><label for="f_fair">Which fair did you win at?</label><input type="text" id="f_fair" data-k="fairName" placeholder="e.g. California State Fair"></div>
+        <div class="field"><label for="f_fairyr">Year and category</label><input type="text" id="f_fairyr" data-k="fairCat" placeholder="e.g. 2026, Youth Landscape"></div>
+      </div>
+      <fieldset>
+        <div class="legend">Do your people or street photos show faces you could identify?<span class="hint">Some contests ask for written permission from the people in a photo (a model release). Good to know early.</span></div>
+        <div class="chips">
+          <label class="chip"><input type="radio" name="faces" value="Strangers" data-k="faces"><span>Yes, strangers</span></label>
+          <label class="chip"><input type="radio" name="faces" value="Friends/family" data-k="faces"><span>Yes, friends or family</span></label>
+          <label class="chip"><input type="radio" name="faces" value="Mostly not" data-k="faces"><span>Mostly not</span></label>
+        </div>
+      </fieldset>
+    </div>
+  </section>
+
+  <section class="roll" aria-labelledby="s4">
+    <div class="rollhead"><span class="no">IV.</span><h2 id="s4">What you shoot</h2></div>
+    <div class="body">
+      <fieldset>
+        <div class="legend">What do you shoot most?<span class="hint">Pick all that apply</span></div>
+        <div class="chips">
+          <label class="chip"><input type="checkbox" value="Nature / landscape" data-k="genres"><span>Nature / landscape</span></label>
+          <label class="chip"><input type="checkbox" value="Wildlife" data-k="genres"><span>Wildlife</span></label>
+          <label class="chip"><input type="checkbox" value="Street" data-k="genres"><span>Street</span></label>
+          <label class="chip"><input type="checkbox" value="Portraits" data-k="genres"><span>Portraits</span></label>
+          <label class="chip"><input type="checkbox" value="Documentary / stories" data-k="genres"><span>Documentary / stories</span></label>
+          <label class="chip"><input type="checkbox" value="Sports / action" data-k="genres"><span>Sports / action</span></label>
+          <label class="chip"><input type="checkbox" value="Abstract / creative" data-k="genres"><span>Abstract / creative</span></label>
+          <label class="chip"><input type="checkbox" value="Black and white" data-k="genres"><span>Black and white</span></label>
+        </div>
+      </fieldset>
+      <div class="field"><label for="f_more">What would you like to shoot more of?</label><input type="text" id="f_more" data-k="moreOf"></div>
+      <fieldset>
+        <div class="legend">Single strong photos, or a series that tells a story?</div>
+        <div class="chips">
+          <label class="chip"><input type="radio" name="format" value="Single images" data-k="format"><span>Single images</span></label>
+          <label class="chip"><input type="radio" name="format" value="Series / stories" data-k="format"><span>Series / stories</span></label>
+          <label class="chip"><input type="radio" name="format" value="Both" data-k="format"><span>Both</span></label>
+        </div>
+      </fieldset>
+      <div class="field"><label for="f_admire">Photographers, artists, or accounts you admire, and what you take from them</label><textarea id="f_admire" data-k="admire"></textarea></div>
+    </div>
+  </section>
+
+  <section class="roll" aria-labelledby="s5">
+    <div class="rollhead"><span class="no">V.</span><h2 id="s5">Ambitions</h2></div>
+    <div class="body">
+      <div class="field"><label for="f_past">Other contests, awards, shows, or publications so far<span class="hint">Include anything, even small or school-level</span></label><textarea id="f_past" data-k="pastAwards"></textarea></div>
+      <fieldset>
+        <div class="legend">What would make this worth it?<span class="hint">Pick all that apply</span></div>
+        <div class="chips">
+          <label class="chip"><input type="checkbox" value="Awards for college apps" data-k="wants"><span>Awards for college apps</span></label>
+          <label class="chip"><input type="checkbox" value="Scholarship money" data-k="wants"><span>Scholarship money</span></label>
+          <label class="chip"><input type="checkbox" value="Feedback from pros" data-k="wants"><span>Feedback from pros</span></label>
+          <label class="chip"><input type="checkbox" value="Exhibitions" data-k="wants"><span>Exhibitions</span></label>
+          <label class="chip"><input type="checkbox" value="Getting published" data-k="wants"><span>Getting published</span></label>
+          <label class="chip"><input type="checkbox" value="Getting better" data-k="wants"><span>Simply getting better</span></label>
+        </div>
+      </fieldset>
+      <div class="field"><label for="f_project">If you had a free summer and any resources you wanted, what photo project would you make?</label><textarea id="f_project" data-k="dreamProject"></textarea></div>
+      <fieldset>
+        <div class="legend">Realistic hours per month you can put in</div>
+        <div class="chips">
+          <label class="chip"><input type="radio" name="hours" value="1-2" data-k="hours"><span>1&ndash;2</span></label>
+          <label class="chip"><input type="radio" name="hours" value="3-5" data-k="hours"><span>3&ndash;5</span></label>
+          <label class="chip"><input type="radio" name="hours" value="6-10" data-k="hours"><span>6&ndash;10</span></label>
+          <label class="chip"><input type="radio" name="hours" value="10+" data-k="hours"><span>10+</span></label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <div class="legend">How do you feel about writing captions or a short artist statement?</div>
+        <div class="scale">
+          <span class="hint">Rather not</span>
+          <label class="chip"><input type="radio" name="writing" value="1" data-k="writing"><span>1</span></label>
+          <label class="chip"><input type="radio" name="writing" value="2" data-k="writing"><span>2</span></label>
+          <label class="chip"><input type="radio" name="writing" value="3" data-k="writing"><span>3</span></label>
+          <label class="chip"><input type="radio" name="writing" value="4" data-k="writing"><span>4</span></label>
+          <label class="chip"><input type="radio" name="writing" value="5" data-k="writing"><span>5</span></label>
+          <span class="hint">Happy to</span>
+        </div>
+      </fieldset>
+    </div>
+  </section>
+
+  <section class="roll" aria-labelledby="s6">
+    <div class="rollhead"><span class="no">VI.</span><h2 id="s6">Working together</h2><p>PiQ sets the plan and the pace. Help it fit around your life.</p></div>
+    <div class="body">
+      <fieldset>
+        <div class="legend">Where should PiQ reach you?</div>
+        <div class="chips">
+          <label class="chip"><input type="checkbox" value="Calendar invites" data-k="channel"><span>Calendar invites</span></label>
+          <label class="chip"><input type="checkbox" value="Email" data-k="channel"><span>Email</span></label>
+                    <label class="chip"><input type="checkbox" value="This studio page" data-k="channel"><span>Just this page</span></label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <div class="legend">How should PiQ give you feedback on your photos?</div>
+        <div class="chips">
+          <label class="chip"><input type="radio" name="tone" value="Straight, no sugarcoating" data-k="feedbackTone"><span>Straight, no sugarcoating</span></label>
+          <label class="chip"><input type="radio" name="tone" value="Honest but encouraging" data-k="feedbackTone"><span>Honest but encouraging</span></label>
+          <label class="chip"><input type="radio" name="tone" value="Lead with what works" data-k="feedbackTone"><span>Lead with what works</span></label>
+        </div>
+      </fieldset>
+      <div class="field"><label for="f_busy">Busy stretches PiQ should plan around<span class="hint">Sports seasons, finals, AP exams, trips</span></label><input type="text" id="f_busy" data-k="busy"></div>
+      <div class="field"><label for="f_else">Anything else PiQ should know about you?</label><textarea id="f_else" data-k="anything"></textarea></div>
+    </div>
+  </section>
+
+  <p class="fine" style="padding-top:40px">Privacy: PiQ is a private family tool. Your answers, photos and conversations are stored privately for your family and the weekly check-in, and are never shared or sold. AI replies come from Claude, by Anthropic.</p>
+  <div class="copyout" id="copyout">
+    <label for="copyText">Your answers as text</label>
+    <textarea id="copyText" readonly style="min-height:200px"></textarea>
+  </div>
+</div>
+<div class="bar"><div class="in">
+  <span class="state" id="saveState">Not saved yet</span>
+  <div style="display:flex;gap:10px;flex-wrap:wrap">
+    <button class="btn ghost" id="copyBtn" type="button">Copy answers</button>
+    <button class="btn" id="submitBtn" type="button">Finish and open my studio</button>
+  </div>
+</div></div>
+</div>
+
+<!-- ================= STUDIO ================= -->
+<div id="studio" hidden>
+<div class="studio">
+  <header>
+    <div class="topline">
+      <div style="display:flex;gap:16px;align-items:center"><span class="logo" role="img" aria-label="PiQ"><span aria-hidden="true">Pi<span class="q">Q<b></b></span></span></span><span class="cap">Oliver's studio</span></div>
+      <div style="display:flex;gap:18px;align-items:baseline">
+        <span class="state" id="studioState"></span>
+        <button class="link" type="button" id="editProfile">Edit my answers and photos</button>
+        <button class="link" type="button" data-signout>Sign out</button>
+      </div>
+    </div>
+    <h1 id="greet">Good evening.</h1>
+    <div id="studioOwner" class="banner" hidden>Parent view. You can read Oliver&rsquo;s plates, notes and conversations with PiQ. Chat is his.</div>
+  </header>
+
+  <div class="grid">
+    <aside class="side">
+      <div class="block">
+        <h3>From PiQ</h3>
+        <p class="note" id="briefNote">Your contest list is being researched. Your first brief arrives with the next check-in.</p>
+        <span class="note-sig" id="briefDate"></span>
+      </div>
+      <div class="block">
+        <h3>This week</h3>
+        <ul class="tasks" id="tasks"></ul>
+      </div>
+      <div class="block">
+        <h3>Coming up</h3>
+        <ul class="dl" id="deadlines"></ul>
+      </div>
+      <div class="block">
+        <h3>Your plates</h3>
+        <div class="plates" id="plates"></div>
+        <span class="tiny">Tap a plate to talk about it.</span>
+      </div>
+      <div class="block">
+        <h3>What PiQ knows about you</h3>
+        <ul class="memory" id="memory"></ul>
+        <span class="tiny">PiQ adds to this as you talk. Remove anything you don&rsquo;t want kept.</span>
+      </div>
+    </aside>
+
+    <main class="convo" id="convo" aria-live="polite">
+      <div class="starter" id="starter">
+        <p>This is where we work. Bring a photo you're unsure about, a caption that isn't landing, or a question about what to enter next. PiQ already knows your answers, your plates, and this week's plan, so you can skip the backstory. PiQ is an AI, not a person, and your family can read these conversations.</p>
+        <div class="prompts" id="prompts">
+          <button type="button" data-p="Look at my strongest plate and tell me honestly what's working and what isn't.">Critique my strongest photo</button>
+          <button type="button" data-p="Help me write a title and a short caption for a photo. Ask me about it first.">Write a caption with me</button>
+          <button type="button" data-p="I need a short artist statement. Interview me first, one question at a time, then draft it in my voice.">Draft an artist statement</button>
+          <button type="button" data-p="Look across all my plates. What images, symbols or situations do I keep returning to, and what might they be about? Ask me before you decide.">What do my photos keep returning to?</button>
+          <button type="button" data-p="Which of my photos could work as a series, and what's missing to finish it?">Find a series in my work</button>
+          <button type="button" data-p="What should I do this week, and why?">What's next for me?</button>
+          <button type="button" data-p="Give me a shooting assignment for this weekend that fits what I'm working toward.">Give me an assignment</button>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div class="composer"><div class="in">
+  <div class="spacer"></div>
+  <div class="box">
+    <div class="attached" id="attached"></div>
+    <label for="ask" class="tiny" style="position:absolute;left:-9999px">Message PiQ</label>
+    <textarea id="ask" rows="1" placeholder="Ask PiQ, or add a photo to workshop"></textarea>
+    <div class="row">
+      <div style="display:flex;gap:14px;align-items:center">
+        <label class="link" for="askFile" id="attachLbl" style="cursor:pointer">Add photo</label>
+        <input type="file" id="askFile" accept="image/jpeg,image/png,image/webp,image/gif,image/*" multiple hidden>
+        <span class="tiny" id="askHint">PiQ is an AI, not a person.</span>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn ghost" type="button" id="stopBtn" hidden>Stop</button>
+        <button class="btn" type="button" id="sendBtn">Send</button>
+      </div>
+    </div>
+  </div>
+</div></div>
+</div>
+
+<script>window.PIQ_API = "https://piq.YOUR-CLOUDFLARE-SUBDOMAIN.workers.dev";</script>
+<script>
+(function(){
+  const MAX=10;
+  const $=id=>document.getElementById(id);
+  const API=(window.PIQ_API||'').replace(/\/$/,'');
+  let token=null, role=null; try{ token=localStorage.getItem('piq_token'); }catch(_){ }
+  let canSave=false, owner=false, imgLimit={maxCount:4};
+  async function api(path,opts={}){
+    const r=await fetch(API+path,{...opts,headers:{...(opts.headers||{}),'Authorization':'Bearer '+token}});
+    if(r.status===401){ signOut(); throw {code:'auth'}; }
+    const j=(r.headers.get('content-type')||'').includes('json')?await r.json():null;
+    if(!r.ok) throw {code:r.status,message:j&&j.error};
+    return j;
+  }
+  const uploadPhoto=blob=>api('/api/photos',{method:'POST',headers:{'Content-Type':'image/jpeg'},body:blob});
+  function signOut(){ try{ localStorage.removeItem('piq_token'); }catch(_){ } location.hash=''; location.reload(); }
+  let data={};                 // profile answers
+  let photos=[];               // {assetId,file,title,where,why,kind,fair,caption}
+  let memory=[];               // [{t, at}]
+  let taskDone={};             // {taskId:true}
+  let notes=[];                // notes for Dad/Claude
+  let submittedAt=null;
+  let brief=null;              // {note, updatedAt, tasks:[{id,title,detail,due}], deadlines:[{name,date,why,url}]}
+  let thread=[];               // [{role, content, images:[assetId], at}]
+  let contests=[];             // researched contest list from contests/all
+  let writing=false, dirty=false, timer=null, lastJson="";
+
+  // ---------- helpers ----------
+  const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  function md(src){
+    const lines=esc(src).split('\n'); let out='', list=null;
+    const inline=s=>s.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/(^|[^*])\*(?!\s)(.+?)\*(?!\*)/g,'$1<em>$2</em>');
+    const close=()=>{ if(list){ out+='</'+list+'>'; list=null; } };
+    let para=[];
+    const flush=()=>{ if(para.length){ out+='<p>'+inline(para.join('<br>'))+'</p>'; para=[]; } };
+    for(const l of lines){
+      let m;
+      if(/^\s*$/.test(l)){ flush(); close(); continue; }
+      if((m=l.match(/^#{1,4}\s+(.*)/))){ flush(); close(); out+='<h4>'+inline(m[1])+'</h4>'; continue; }
+      if((m=l.match(/^\s*[-•*]\s+(.*)/))){ flush(); if(list!=='ul'){ close(); out+='<ul>'; list='ul'; } out+='<li>'+inline(m[1])+'</li>'; continue; }
+      if((m=l.match(/^\s*\d+[.)]\s+(.*)/))){ flush(); if(list!=='ol'){ close(); out+='<ol>'; list='ol'; } out+='<li>'+inline(m[1])+'</li>'; continue; }
+      close(); para.push(l);
+    }
+    flush(); close(); return out;
+  }
+  const blobUrl=id=>API+'/api/photo/'+id+'?t='+encodeURIComponent(token);
+  function fmtDate(s){ const d=new Date(s+(String(s).length<=10?'T12:00:00':'')); return isNaN(d)?String(s):d.toLocaleDateString([], {month:'short',day:'numeric'}); }
+
+  // ---------- profile collect/restore ----------
+  function collect(){
+    const o={};
+    document.querySelectorAll('#onboard [data-k]').forEach(el=>{
+      const k=el.dataset.k;
+      if(el.type==='checkbox'){ (o[k]=o[k]||[]); if(el.checked) o[k].push(el.value); }
+      else if(el.type==='radio'){ if(el.checked) o[k]=el.value; else if(!(k in o)) o[k]=''; }
+      else o[k]=el.value.trim();
+    });
+    return o;
+  }
+  function body(){
+    return {...collect(),
+      photos:photos.filter(p=>p.assetId).map(p=>({assetId:p.assetId,file:p.file||'',title:p.title||'',where:p.where||'',why:p.why||'',kind:p.kind||'',fair:!!p.fair,caption:p.caption||''})),
+      memory, taskDone, notes, submittedAt};
+  }
+  function restore(d){
+    data=d;
+    document.querySelectorAll('#onboard [data-k]').forEach(el=>{
+      const v=d[el.dataset.k]; if(v==null) return;
+      if(el.type==='checkbox') el.checked=Array.isArray(v)&&v.includes(el.value);
+      else if(el.type==='radio') el.checked=(v===el.value);
+      else el.value=v;
+    });
+    photos=(Array.isArray(d.photos)?d.photos:[]).map(p=>({...p}));
+    memory=Array.isArray(d.memory)?d.memory.slice():[];
+    taskDone=(d.taskDone&&typeof d.taskDone==='object')?{...d.taskDone}:{};
+    notes=Array.isArray(d.notes)?d.notes.slice():[];
+    submittedAt=d.submittedAt||null;
+    renderPhotos();
+  }
+
+  // ---------- saving ----------
+  function setState(t,c){ for(const id of ['saveState','studioState']){ const s=$(id); if(!s) continue; s.textContent=t; s.style.color=c==='err'?'var(--bad)':c==='ok'?'var(--good)':''; } }
+  function schedule(){ dirty=true; if(!canSave) return; clearTimeout(timer); timer=setTimeout(flush,1200); setState('Editing…'); }
+  async function flush(){
+    if(!canSave) return;
+    if(writing){ dirty=true; return; }
+    const b=body(); const j=JSON.stringify(b);
+    if(j===lastJson){ dirty=false; return; }
+    writing=true; dirty=false;
+    try{ await api('/api/profile',{method:'PUT',headers:{'Content-Type':'application/json'},body:j}); lastJson=j; setState('Saved '+new Date().toLocaleTimeString([], {hour:'numeric',minute:'2-digit'}),'ok'); }
+    catch(e){ setState(e&&e.code==='quota_exceeded'?'Storage is full':'Couldn\u2019t save, retrying','err'); dirty=true; }
+    writing=false;
+    if(dirty){ clearTimeout(timer); timer=setTimeout(flush,1500); }
+  }
+  document.addEventListener('input',e=>{ if(e.target.closest('#onboard [data-k]')||e.target.closest('.frame')) schedule(); });
+  document.addEventListener('change',e=>{ if(e.target.closest('#onboard [data-k]')||e.target.closest('.frame')) schedule(); });
+
+  // ---------- onboarding photos ----------
+  const sheet=$('sheet');
+  function renderPhotos(){
+    sheet.innerHTML='';
+    photos.forEach((p,i)=>{
+      const src=p.preview||(p.assetId?blobUrl(p.assetId):'');
+      const div=document.createElement('div'); div.className='frame';
+      div.innerHTML=`
+        <div class="thumb">
+          ${src?`<img alt="Plate ${i+1}${p.title?': '+esc(p.title):''}" src="${esc(src)}">`:''}
+          <div class="capline"><span class="fno">Pl. ${i+1}${p.title?' &middot; '+esc(p.title):''}</span>
+          <span class="status ${p.err?'err':p.assetId?'ok':''}">${p.err?esc(p.err):p.assetId?'Uploaded':'Uploading…'}</span></div>
+          <button class="link" type="button" data-rm="${i}" style="align-self:flex-start">Remove</button>
+        </div>
+        <div class="fields">
+          <div class="field"><label for="pt${i}">Title</label><input type="text" id="pt${i}" data-p="title" data-i="${i}" value="${esc(p.title)}"></div>
+          <div class="field"><label for="pw${i}">Where and when</label><input type="text" id="pw${i}" data-p="where" data-i="${i}" value="${esc(p.where)}" placeholder="e.g. Point Reyes, June 2026"></div>
+          <div class="field"><label for="py${i}">The story behind it<span class="hint">What was happening, and why this frame matters to you</span></label><textarea id="py${i}" data-p="why" data-i="${i}">${esc(p.why)}</textarea></div>
+          <div class="two">
+            <div class="field"><label for="pk${i}">Type</label>
+              <select id="pk${i}" data-p="kind" data-i="${i}">
+                ${['','Nature / landscape','Wildlife','Street','Portrait','Documentary','Other'].map(o=>`<option value="${o}" ${p.kind===o?'selected':''}>${o||'Choose…'}</option>`).join('')}
+              </select></div>
+            <div class="field" style="justify-content:flex-end"><label class="chip"><input type="checkbox" id="pf${i}" data-p="fair" data-i="${i}" ${p.fair?'checked':''}><span>My state fair winner</span></label></div>
+          </div>
+        </div>`;
+      sheet.appendChild(div);
+    });
+    $('countHint').textContent=photos.length+' of '+MAX+' added';
+    renderPlates();
+  }
+  const setP=e=>{ const t=e.target; if(t.dataset.p==null) return; const p=photos[+t.dataset.i]; if(!p) return; p[t.dataset.p]=t.type==='checkbox'?t.checked:t.value; };
+  sheet.addEventListener('input',setP); sheet.addEventListener('change',setP);
+  sheet.addEventListener('click',async e=>{
+    const b=e.target.closest('[data-rm]'); if(!b) return;
+    const i=+b.dataset.rm; const p=photos[i]; photos.splice(i,1); renderPhotos(); schedule();
+    if(p&&p.assetId&&canSave){ try{ await api('/api/photo/'+p.assetId,{method:'DELETE'}); }catch(_){ } }
+  });
+  function shrink(file,max=2400,q=.9){
+    return new Promise(res=>{
+      const url=URL.createObjectURL(file); const img=new Image();
+      img.onload=()=>{
+        const s=Math.min(1,max/Math.max(img.naturalWidth,img.naturalHeight));
+        const c=document.createElement('canvas'); c.width=Math.round(img.naturalWidth*s); c.height=Math.round(img.naturalHeight*s);
+        c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+        c.toBlob(b=>{ URL.revokeObjectURL(url); res(b||file); },'image/jpeg',q);
+      };
+      img.onerror=()=>{ URL.revokeObjectURL(url); res(file); };
+      img.src=url;
+    });
+  }
+  async function addFiles(list){
+    const files=[...list].filter(f=>f.type.startsWith('image/')||/\.(heic|heif)$/i.test(f.name)).slice(0,MAX-photos.length);
+    for(const f of files){
+      const p={file:f.name,title:'',where:'',why:'',kind:'',fair:false,caption:'',preview:URL.createObjectURL(f)};
+      photos.push(p); renderPhotos();
+      if(owner){ p.err='Parent view is read-only'; renderPhotos(); continue; }
+      try{ const r=await uploadPhoto(await shrink(f)); p.assetId=r.id; renderPhotos(); schedule(); }
+      catch(e){ p.err='Upload failed, try again'; renderPhotos(); }
+    }
+  }
+  $('fileIn').addEventListener('change',e=>{ addFiles(e.target.files); e.target.value=''; });
+  const drop=$('drop');
+  ['dragenter','dragover'].forEach(t=>drop.addEventListener(t,e=>{e.preventDefault();drop.classList.add('over');}));
+  ['dragleave','drop'].forEach(t=>drop.addEventListener(t,e=>{e.preventDefault();drop.classList.remove('over');}));
+  drop.addEventListener('drop',e=>addFiles(e.dataTransfer.files));
+
+  function asText(){
+    const d=collect(); const lines=[];
+    for(const [k,v] of Object.entries(d)){ const val=Array.isArray(v)?v.join(', '):v; if(val) lines.push(k+': '+val); }
+    photos.forEach((p,i)=>lines.push(`Plate ${i+1}: ${p.title} | ${p.where} | ${p.kind} | ${p.why}${p.fair?' | FAIR WINNER':''}${p.assetId?'':' (not uploaded: '+p.file+')'}`));
+    return lines.join('\n');
+  }
+  $('copyBtn').addEventListener('click',async()=>{
+    const t=asText(); $('copyText').value=t; $('copyout').classList.add('show');
+    try{ await navigator.clipboard.writeText(t); setState('Copied','ok'); }catch(_){ $('copyText').select(); setState('Select the text below and copy it'); }
+  });
+  $('submitBtn').addEventListener('click',async()=>{
+    if(owner){ showStudio(); return; }
+    if(!canSave){ $('copyBtn').click(); return; }
+    if(!submittedAt) submittedAt=Date.now();
+    clearTimeout(timer); await flush(); data=collect(); showStudio();
+  });
+
+  // ---------- view switching ----------
+  function showStudio(){ $('onboard').hidden=true; $('studio').hidden=false; renderStudio(); window.scrollTo(0,0); try{ location.hash='studio'; }catch(_){ } }
+  function showOnboard(){ $('studio').hidden=true; $('onboard').hidden=false; window.scrollTo(0,0); try{ location.hash='profile'; }catch(_){ } }
+  $('editProfile').addEventListener('click',showOnboard);
+  $('ownerStudio').addEventListener('click',showStudio);
+  window.addEventListener('hashchange',()=>{ if(location.hash==='#profile') showOnboard(); else if(location.hash==='#studio' && (submittedAt||owner)) showStudio(); });
+
+  // ---------- studio render ----------
+  function greeting(){
+    const h=new Date().getHours(); const part=h<12?'morning':h<18?'afternoon':'evening';
+    const n=(collect().name||'').split(' ')[0];
+    $('greet').innerHTML=`Good ${part}${n?', <em>'+esc(n)+'</em>':''}.`;
+  }
+  function renderBrief(){
+    if(brief&&brief.note){ $('briefNote').textContent=brief.note; $('briefDate').textContent=brief.updatedAt?('Updated '+fmtDate(brief.updatedAt)):''; }
+    const tasks=(brief&&Array.isArray(brief.tasks))?brief.tasks:[];
+    const tl=$('tasks'); tl.innerHTML='';
+    if(!tasks.length) tl.innerHTML='<li class="empty">Nothing yet. Tasks arrive with each check-in.</li>';
+    tasks.forEach(t=>{
+      const done=!!taskDone[t.id];
+      const li=document.createElement('li'); li.className='task'+(done?' is-done':'');
+      li.innerHTML=`<input type="checkbox" id="tk_${esc(t.id)}" ${done?'checked':''} aria-label="Done: ${esc(t.title)}"><label for="tk_${esc(t.id)}"><span class="t">${esc(t.title)}</span>${t.detail?`<span class="d">${esc(t.detail)}</span>`:''}${t.due?`<span class="due">Due ${esc(fmtDate(t.due))}</span>`:''}</label>`;
+      li.querySelector('input').addEventListener('change',e=>{ if(e.target.checked) taskDone[t.id]=true; else delete taskDone[t.id]; li.classList.toggle('is-done',e.target.checked); schedule(); });
+      tl.appendChild(li);
+    });
+    const dls=(brief&&Array.isArray(brief.deadlines))?brief.deadlines.slice().sort((a,b)=>String(a.date).localeCompare(String(b.date))):[];
+    const dl=$('deadlines'); dl.innerHTML='';
+    if(!dls.length) dl.innerHTML='<li class="empty" style="display:block;border:0">Deadlines appear once your contest list is set.</li>';
+    dls.slice(0,6).forEach(d=>{ const li=document.createElement('li'); li.innerHTML=`<span class="date">${esc(fmtDate(d.date))}</span><span><span class="name">${d.url?`<a href="${esc(d.url)}" style="color:inherit;text-decoration:none;border-bottom:1px solid var(--line)">${esc(d.name)}</a>`:esc(d.name)}</span>${d.why?`<span class="why">${esc(d.why)}</span>`:''}</span>`; dl.appendChild(li); });
+  }
+  function renderPlates(){
+    const el=$('plates'); if(!el) return; el.innerHTML='';
+    const ps=photos.filter(p=>p.assetId||p.preview);
+    if(!ps.length){ el.innerHTML='<p class="empty" style="grid-column:1/-1">No plates yet. <button class="link" type="button" id="goAdd">Add photos</button></p>'; const g=$('goAdd'); if(g) g.onclick=showOnboard; return; }
+    photos.forEach((p,i)=>{ const src=p.preview||(p.assetId?blobUrl(p.assetId):''); if(!src) return;
+      const b=document.createElement('button'); b.type='button'; b.title='Talk about plate '+(i+1);
+      b.innerHTML=`<img alt="Plate ${i+1}${p.title?': '+esc(p.title):''}" src="${esc(src)}"><span>Pl. ${i+1}</span>`;
+      b.onclick=()=>attachPlate(i); el.appendChild(b); });
+  }
+  function renderMemory(){
+    const el=$('memory'); el.innerHTML='';
+    if(!memory.length){ el.innerHTML='<li class="empty">Nothing yet.</li>'; return; }
+    memory.forEach((m,i)=>{ const li=document.createElement('li'); li.innerHTML=`<span>${esc(m.t)}</span><button type="button" aria-label="Remove">Remove</button>`; li.querySelector('button').onclick=()=>{ memory.splice(i,1); renderMemory(); schedule(); }; el.appendChild(li); });
+  }
+  function renderThread(){
+    const c=$('convo'); c.querySelectorAll('.msg').forEach(n=>n.remove());
+    $('starter').hidden=thread.length>0;
+    thread.forEach(m=>c.appendChild(msgEl(m)));
+  }
+  function msgEl(m){
+    const d=document.createElement('div'); d.className='msg '+(m.role==='user'?'me':'ai');
+    const imgs=(m.images||[]).map(id=>`<img alt="Attached photo" src="${esc(blobUrl(id))}">`).concat((m.previews||[]).map(u=>`<img alt="Attached photo" src="${esc(u)}">`)).join('');
+    d.innerHTML=`<span class="who">${m.role==='user'?'You':'PiQ'}</span>${imgs?`<div class="imgs">${imgs}</div>`:''}<div class="bubble">${m.role==='user'?esc(m.content):md(m.content)}</div>`;
+    return d;
+  }
+  function renderStudio(){ greeting(); renderBrief(); renderPlates(); renderMemory(); renderThread(); }
+
+  // ---------- chat ----------
+  let pending=[]; // {blob, preview, assetId?, plate?}
+  function renderAttached(){
+    const el=$('attached'); el.innerHTML='';
+    pending.forEach((a,i)=>{ const d=document.createElement('div'); d.innerHTML=`<img alt="Attached" src="${esc(a.preview)}"><button type="button" aria-label="Remove attachment">&times;</button>`; d.querySelector('button').onclick=()=>{ pending.splice(i,1); renderAttached(); }; el.appendChild(d); });
+  }
+  async function attachPlate(i){
+    const p=photos[i]; if(!p) return;
+    if(!imgLimit){ $('ask').value=`Let's talk about plate ${i+1}${p.title?' ("'+p.title+'")':''}. `; $('ask').focus(); return; }
+    try{
+      const src=p.preview||blobUrl(p.assetId);
+      const blob=await (await fetch(src)).blob();
+      pending=[{blob, preview:src, assetId:p.assetId, plate:i+1}]; renderAttached();
+      $('ask').value=`Let's talk about plate ${i+1}${p.title?' ("'+p.title+'")':''}. `; $('ask').focus();
+    }catch(_){ $('ask').value=`Let's talk about plate ${i+1}. `; $('ask').focus(); }
+  }
+  $('askFile').addEventListener('change',async e=>{
+    const files=[...e.target.files].slice(0,(imgLimit&&imgLimit.maxCount)||4); e.target.value='';
+    for(const f of files){ const blob=await shrink(f,2000,.88); pending.push({blob, preview:URL.createObjectURL(blob)}); }
+    renderAttached();
+  });
+  document.querySelectorAll('#prompts button').forEach(b=>b.addEventListener('click',()=>{
+    const t=b.dataset.p;
+    if(/strongest plate/.test(t)&&photos.length){ const i=Math.max(0,photos.findIndex(p=>p.fair)); attachPlate(i).then(()=>{ $('ask').value=t; send(); }); return; }
+    $('ask').value=t; send();
+  }));
+  const ask=$('ask');
+  ask.addEventListener('input',()=>{ ask.style.height='auto'; ask.style.height=Math.min(200,ask.scrollHeight)+'px'; });
+  ask.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); send(); } });
+  $('sendBtn').addEventListener('click',send);
+  let ctl=null;
+  $('stopBtn').addEventListener('click',()=>ctl&&ctl.abort());
+
+  let busy=false;
+  async function send(){
+    const text=ask.value.trim();
+    if(busy||(!text&&!pending.length)) return;
+    if(owner||!canSave){ $('askHint').textContent='Parent view is read-only.'; return; }
+    busy=true; $('sendBtn').disabled=true; $('stopBtn').hidden=false;
+    const atts=pending; pending=[]; renderAttached(); ask.value=''; ask.style.height='auto';
+    // upload new attachments so the check-in can see them
+    const ids=[]; const previews=[];
+    for(const a of atts){
+      if(a.assetId){ ids.push(a.assetId); continue; }
+      if(canSave){ try{ const r=await uploadPhoto(a.blob); ids.push(r.id); continue; }catch(_){ } }
+      previews.push(a.preview);
+    }
+    const plateNote=atts.filter(a=>a.plate).map(a=>`[Attached: plate ${a.plate}]`).join(' ');
+    const userMsg={role:'user',content:(plateNote?plateNote+' ':'')+(text||'(photo attached)'),images:ids,previews,at:Date.now()};
+    thread.push(userMsg);
+    $('starter').hidden=true;
+    const c=$('convo'); c.appendChild(msgEl(userMsg));
+    const ai=document.createElement('div'); ai.className='msg ai'; ai.innerHTML='<span class="who">PiQ</span><div class="bubble"><span class="thinking">Looking&hellip;</span></div>';
+    c.appendChild(ai); ai.scrollIntoView({behavior:'smooth',block:'end'});
+    const bubble=ai.querySelector('.bubble');
+    try{
+      const r=await api('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:userMsg.content,imageIds:ids})});
+      bubble.innerHTML=md(r.reply);
+      thread.push({role:'assistant',content:r.reply,images:[],at:Date.now()});
+      if(r.profile){
+        memory=Array.isArray(r.profile.memory)?r.profile.memory:memory;
+        taskDone=r.profile.taskDone||taskDone;
+        (r.profile.photos||[]).forEach(sp=>{ const p=photos.find(x=>x.assetId===sp.assetId); if(p){ p.title=sp.title||p.title; p.caption=sp.caption||p.caption; } });
+        lastJson=JSON.stringify(body()); renderMemory(); renderBrief(); renderPlates();
+      }
+    }catch(e){
+      bubble.innerHTML='';
+      const er=document.createElement('div'); er.className='err'; er.textContent=(e&&e.message)||'PiQ couldn\u2019t answer just now. Try again in a minute.'; ai.appendChild(er);
+    }
+    busy=false; $('sendBtn').disabled=false; $('stopBtn').hidden=true; ctl=null;
+  }
+
+  // ---------- boot ----------
+  async function login(){
+    const c=$('code').value.trim(); if(!c) return;
+    $('loginErr').textContent=''; $('loginBtn').disabled=true;
+    try{
+      const r=await fetch(API+'/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:c})});
+      const j=await r.json().catch(()=>({}));
+      if(!r.ok) throw new Error(j.error||'That code didn\u2019t work.');
+      token=j.token; try{ localStorage.setItem('piq_token',token); }catch(_){ }
+      boot();
+    }catch(e){ $('loginErr').textContent=e.message||'Can\u2019t reach PiQ right now.'; }
+    finally{ $('loginBtn').disabled=false; }
+  }
+  $('loginBtn').addEventListener('click',login);
+  $('code').addEventListener('keydown',e=>{ if(e.key==='Enter') login(); });
+  document.querySelectorAll('[data-signout]').forEach(b=>b.addEventListener('click',signOut));
+  async function boot(){
+    if(!token){ $('login').hidden=false; return; }
+    $('login').hidden=true;
+    try{
+      const st=await api('/api/state');
+      role=st.role; owner=role==='parent';
+      brief=st.brief||null; contests=(st.contests&&st.contests.list)||[];
+      if(st.profile) restore(st.profile);
+      thread=(st.thread&&Array.isArray(st.thread.messages))?st.thread.messages:[];
+      lastJson=JSON.stringify(body());
+      if(owner){
+        $('ownerNote').hidden=false; $('studioOwner').hidden=false;
+        document.querySelectorAll('#onboard input,#onboard textarea,#onboard select').forEach(el=>el.disabled=true);
+        $('drop').hidden=true; document.querySelector('.composer').hidden=true;
+        setState('Parent view: read-only'); showStudio(); return;
+      }
+      canSave=true; setState('Saved','ok');
+      if(submittedAt&&location.hash!=='#profile') showStudio(); else { $('onboard').hidden=false; }
+    }catch(e){
+      if(e&&e.code!=='auth'){ $('onboard').hidden=false; $('noSave').hidden=false; setState('Can\u2019t reach PiQ','err'); }
+    }
+  }
+  boot();
+})();
+</script>
+</body>
+</html>

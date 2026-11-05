@@ -1,0 +1,19 @@
+name = "piq"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+
+[vars]
+# Private GitHub repo that stores Oliver's answers, photos, chats, brief and contest list.
+DATA_REPO = "YOUR-GITHUB-USERNAME/piq-data"
+# The GitHub Pages address of the site (no trailing slash), e.g. https://yourname.github.io or https://piq.davidlanda.com
+SITE_ORIGIN = "https://YOUR-GITHUB-USERNAME.github.io"
+CHAT_MODEL = "claude-sonnet-5-5"
+MOD_MODEL = "claude-haiku-5-5"
+DAILY_CHAT_LIMIT = "60"
+
+# Secrets are NOT stored here. Set them with:
+#   npx wrangler secret put ANTHROPIC_API_KEY
+#   npx wrangler secret put GITHUB_TOKEN
+#   npx wrangler secret put OLIVER_CODE
+#   npx wrangler secret put PARENT_CODE
+#   npx wrangler secret put SESSION_SECRET
