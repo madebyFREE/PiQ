@@ -162,6 +162,17 @@ function systemPrompt(state) {
   const dls = (b.deadlines || []).map((d) => `- ${d.date}: ${d.name}${d.why ? ` — ${d.why}` : ''}`).join('\n') || '(none yet)';
   const contests = ((state.contests && state.contests.list) || []).map((c) => `- ${c.name} | deadline ${c.deadline} (${c.confidence}) | fee: ${c.fee} | enter: ${c.enter} | ${c.notes}`).join('\n') || '(not loaded)';
   const mem = (p.memory || []).map((m) => `- ${m.t}`).join('\n') || '(nothing yet)';
+  const st = state.style || null;
+  const style = st ? [
+    st.summary && `Summary: ${st.summary}`,
+    st.genres && st.genres.length && `Strongest genres: ${st.genres.join(', ')}`,
+    st.motifs && st.motifs.length && `Recurring motifs: ${st.motifs.join(', ')}`,
+    st.strengths && st.strengths.length && `Strengths: ${st.strengths.join('; ')}`,
+    st.growthAreas && st.growthAreas.length && `Growth areas: ${st.growthAreas.join('; ')}`,
+    st.emergingSeries && st.emergingSeries.length && `Emerging series: ${st.emergingSeries.join('; ')}`,
+    st.contestFitNotes && `What fits him: ${st.contestFitNotes}`,
+    st.outcomes && st.outcomes.length && `Results so far: ${st.outcomes.map((o) => `${o.contest}: ${o.result}`).join('; ')}`,
+  ].filter(Boolean).join('\n') : '(not built yet; it grows each week from his photos and conversations)';
 
   return `You are PiQ, an AI photography mentor (you are an AI, not a person, and you say so plainly if asked). You work one-on-one with Oliver, a 16-year-old high school junior and serious young photographer (documentary, people/street, nature/landscape; first place at a state fair). His family set up PiQ so he can build a portfolio and enter photo competitions that strengthen his college applications in fall 2027.
 
@@ -179,9 +190,10 @@ ROLE AND VOICE
 - On photos: name what works and what doesn't in concrete terms (moment, light, composition, edges, subject separation, edit, sequencing), suggest one or two specific changes, and say which contest category it could fit.
 - Writing: interview him first, draft in his voice, then offer a tighter version.
 - A light touch of depth, used sparingly (at most once a conversation): you notice when a photograph holds more than it shows, and may ask a simple open question in the spirit of Minor White's "camera as mirror" — what keeps showing up across his pictures, what sits just outside the frame. Keep it about the pictures, then return to craft. Never analyze him or his inner life.
+- Use the style profile below. When he shares new work, notice how it fits or stretches his style, and when a contest on the list matches what he's actually making, say so specifically (which plate, which category, why). Point toward contests ranked highest for fit.
 - Only state contest facts from the brief or the researched contest list below; otherwise say it will be checked at the weekly check-in. Note when a deadline is only estimated.
 
-TOOLS: remember_about_oliver for lasting things about his work and interests (things he'd be fine with his family reading; never sensitive or private matters); complete_task when he says he finished a task; save_caption when he settles on a title/caption; note_for_check_in when he asks for something PiQ can't do, commits to a plan, or raises something the weekly check-in should know.
+TOOLS: remember_about_oliver for lasting things about his work and interests, including motifs, strengths, and the kind of contests he gets excited about (things he'd be fine with his family reading; never sensitive or private matters); complete_task when he says he finished a task; save_caption when he settles on a title/caption; note_for_check_in when he asks for something PiQ can't do, commits to a plan, or raises something the weekly check-in should know.
 
 TODAY: ${new Date().toDateString()}
 
@@ -202,7 +214,10 @@ RESEARCHED CONTEST LIST:
 ${contests}
 
 WHAT YOU'VE LEARNED ABOUT OLIVER:
-${mem}`;
+${mem}
+
+STYLE PROFILE OF HIS WORK (updated weekly from his photos, conversations and results):
+${style}`;
 }
 
 const TOOLS = [
@@ -253,11 +268,12 @@ async function photoBlock(env, id) {
 
 // ---------- routes ----------
 async function loadState(env) {
-  const [profile, thread, brief, contests] = await Promise.all([
+  const [profile, thread, brief, contests, style] = await Promise.all([
     ghGetJSON(env, 'profile.json', {}), ghGetJSON(env, 'thread.json', { messages: [] }),
     ghGetJSON(env, 'brief.json', null), ghGetJSON(env, 'contests.json', null),
+    ghGetJSON(env, 'style.json', null),
   ]);
-  return { profile: profile.data, thread: thread.data, brief: brief.data, contests: contests.data };
+  return { profile: profile.data, thread: thread.data, brief: brief.data, contests: contests.data, style: style.data };
 }
 
 const PROFILE_KEYS_MAX = 20000; // bytes, guards against abuse
