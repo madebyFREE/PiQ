@@ -4,9 +4,9 @@ compatibility_date = "2026-10-01"
 
 [vars]
 # Private GitHub repo that stores Oliver's answers, photos, chats, brief and contest list.
-DATA_REPO = "YOUR-GITHUB-USERNAME/piq-data"
+DATA_REPO = "madebyFREE/piq-data"
 # The GitHub Pages address of the site (no trailing slash), e.g. https://yourname.github.io or https://piq.davidlanda.com
-SITE_ORIGIN = "https://YOUR-GITHUB-USERNAME.github.io"
+SITE_ORIGIN = "https://madebyfree.github.io"
 CHAT_MODEL = "claude-sonnet-5-5"
 MOD_MODEL = "claude-haiku-5-5"
 DAILY_CHAT_LIMIT = "60"
